@@ -13,5 +13,9 @@ namespace PfeWebApi.Models
         public bool State { get; set; }
         public DateTime Date { get; set; }
 
+        // for orderDetails
+        public int ItemId { get; set; }
+        public int Qte { get; set; }
+
     }
 }

@@ -16,22 +16,22 @@ namespace PfeWebApi.Controllers
     [RoutePrefix("customers")]
     public class CustomersController : ApiController
     {
-        [Route("add")]
+        [Route("add/{customer}")]
         [HttpPost]
-        public IHttpActionResult Add([FromBody]Customers customers)
+        public IHttpActionResult Add(string customer)
         {
             string message;
-            string q = "insert into [dbo].[customers] values(@id,@nm)";
+            string q = "insert into [dbo].[customers] values(@nm);SELECT @@IDENTITY AS id;";
             SqlCommand cmd = new SqlCommand(q);
-            cmd.Parameters.AddWithValue("@id", customers.Id);
-            cmd.Parameters.AddWithValue("@nm", customers.Name);
-            DataAccess.setData(cmd, out message);
+            cmd.Parameters.AddWithValue("@nm", customer);
+            var dt =DataAccess.getData(cmd, out message);
+            string orderId = dt.Rows[0]["id"].ToString();
             if (!message.Equals("ok"))
             {
                 return BadRequest(message);
             }
             else
-                return Ok();
+                return Ok(orderId);
         }
 
 

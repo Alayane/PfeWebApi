@@ -61,23 +61,57 @@ namespace PfeWebApi.Controllers
 
         [Route("add")]
         [HttpPost]
-        public IHttpActionResult addAnOrders([FromBody]Orders orders)
+        public IHttpActionResult addAnOrder([FromBody]List<Orders> orders)
         {
-            string message;
-            string q = "insert into [dbo].[orders] ([customerId],[tableId]) values(@cs,@tb)";
-            SqlCommand cmd = new SqlCommand(q);
-            cmd.Parameters.AddWithValue("@cs", orders.CustomerId);
-            cmd.Parameters.AddWithValue("@tb", orders.TableId);
-            DataAccess.setData(cmd, out message);
-            if (!message.Equals("ok"))
+            int orderId=0;
+            int i = 0;
+            foreach (Orders o in orders)
             {
-                return BadRequest(message);
+                if (i == 0)
+                {
+                   
+                    string message;
+                    string q = "insert into [dbo].[orders] ([customerId],[tableId]) values(@cs,@tb);SELECT @@IDENTITY AS id;";
+                    SqlCommand cmd = new SqlCommand(q);
+                    cmd.Parameters.AddWithValue("@cs", o.CustomerId);
+                    cmd.Parameters.AddWithValue("@tb", o.TableId);
+                    var dt=DataAccess.getData(cmd, out message);
+                    orderId = int.Parse(dt.Rows[0]["id"].ToString());
+                    if (!message.Equals("ok"))
+                    {
+                        return BadRequest(message);
+                    }
+                }
+
+                string ms;
+                string qr = "insert into [dbo].[orderDetail] values(@id,@it,@qt)";
+                SqlCommand cmds = new SqlCommand(qr);
+                cmds.Parameters.AddWithValue("@id", orderId);
+                cmds.Parameters.AddWithValue("@it", o.ItemId);
+                cmds.Parameters.AddWithValue("@qt", o.Qte);
+                DataAccess.setData(cmds, out ms);
+                if (!ms.Equals("ok"))
+                {
+                    return BadRequest(ms);
+                }
+                
+                i++;
             }
-            else
-                return Ok();
+           
+           return Ok();
             
         }
-
+        [Route("up/{id}")]
+        [HttpPost]
+        public IHttpActionResult upOrder(int id)
+        {
+            string message;
+            string q = "update [dbo].[orders] set state=1 where orderId=@id";
+            SqlCommand cmd = new SqlCommand(q);
+            cmd.Parameters.AddWithValue("@id", id);
+            DataAccess.setData(cmd, out message);
+            return Ok();
+        }
 
     }
 }

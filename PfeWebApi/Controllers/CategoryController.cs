@@ -20,7 +20,7 @@ namespace PfeWebApi.Controllers
         {
             string message;
             List<Category> categories = new List<Category>();
-            SqlCommand cmd = new SqlCommand("select * from category");
+            SqlCommand cmd = new SqlCommand("select distinct c.* from category c join items i on i.category=c.categoryId");
             DataTable dt = DataAccess.getData(cmd, out message);
             if (!message.Equals("ok"))
                 return BadRequest(message);

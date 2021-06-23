@@ -20,7 +20,7 @@ namespace PfeWebApi.Controllers
         {
             string message;
             List<Item> items = new List<Item>();
-            SqlCommand cmd = new SqlCommand(@"select i.itemName,i.quantity,i.price,i.image
+            SqlCommand cmd = new SqlCommand(@"select i.itemName,i.quantity,i.price,i.image,i.description,i.itemId
                         from items i join category c on c.categoryId = i.category
                         where c.name =@cat");
             cmd.Parameters.AddWithValue("@cat", category);
@@ -35,7 +35,9 @@ namespace PfeWebApi.Controllers
                     i.Name = r[0].ToString();
                     i.Qte = r[1].ToString();
                     i.Price = (decimal)r[2];
-                    i.Image = (byte[])r[3]; 
+                    i.Image = (byte[])r[3];
+                    i.Des = r[4].ToString();
+                    i.Id = int.Parse( r[5].ToString());
                     items.Add(i);
                 }
                 return Ok(items);
@@ -46,8 +48,10 @@ namespace PfeWebApi.Controllers
 
         public class Item
         {
+            public int Id { get; set; }
             public string Name { get; set; }
             public string Qte { get; set; }
+            public string Des { get; set; }
             public decimal Price { get; set; }
             public byte[] Image { get; set; }
         }

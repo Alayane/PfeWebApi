@@ -48,20 +48,24 @@ namespace PfeWebApi.Controllers
 
         [Route("add")]
         [HttpPost]
-        public IHttpActionResult addOrderDetail([FromBody]OrderDetails orderDetails)
+        public IHttpActionResult addOrderDetail([FromBody]List<OrderDetails> orderDetails)
         {
-            string message;
-            string q = "insert into [dbo].[orderDetail] values(@id,@it,@qt)";
-            SqlCommand cmd = new SqlCommand(q);
-            cmd.Parameters.AddWithValue("@it", orderDetails.ItemId);
-            cmd.Parameters.AddWithValue("@qt", orderDetails.Qte);
-            DataAccess.setData(cmd, out message);
-            if (!message.Equals("ok"))
+            foreach (OrderDetails o in orderDetails)
             {
-                return BadRequest(message);
+
+                string message;
+                string q = "insert into [dbo].[orderDetail] values(@id,@it,@qt)";
+                SqlCommand cmd = new SqlCommand(q);
+                cmd.Parameters.AddWithValue("@id", o.OrderId);
+                cmd.Parameters.AddWithValue("@it", o.ItemId);
+                cmd.Parameters.AddWithValue("@qt", o.Qte);
+                DataAccess.setData(cmd, out message);
+                if (!message.Equals("ok"))
+                {
+                    return BadRequest(message);
+                }
             }
-            else
-                return Ok();
+            return Ok();
         }
 
         [Route("bill/{id}")]
